@@ -1,55 +1,55 @@
 # Jellyfin Export for Letterboxd
 
-Esporta i film della tua libreria Jellyfin in un file CSV compatibile con l'import di Letterboxd.
+Export the movies in your Jellyfin library to a CSV file that can be imported into Letterboxd.
 
-Il progetto nasce per un caso semplice e utile: recuperare l'elenco dei film dal proprio server Jellyfin tramite API e generare un CSV pronto da caricare su Letterboxd come lista.
+This project is built for a simple and practical use case: fetch your movie collection from a Jellyfin server through the API and generate a CSV file that is ready to upload to Letterboxd as a list.
 
-## Cosa fa
+## What it does
 
-- Recupera tutti gli elementi `Movie` da Jellyfin
-- Supporta paginazione automatica delle API
-- Esporta un CSV compatibile con Letterboxd
-- Usa i provider ID `tmdbID` e `imdbID` quando disponibili
-- Supporta configurazione tramite file `.env`
-- Non richiede dipendenze Python esterne
+- Fetches all `Movie` items from Jellyfin
+- Supports automatic API pagination
+- Exports a Letterboxd-compatible CSV file
+- Uses `tmdbID` and `imdbID` provider IDs when available
+- Supports configuration through a `.env` file
+- Does not require external Python dependencies
 
-## Requisiti
+## Requirements
 
-- Windows, macOS o Linux
-- Python 3.10 o superiore
-- URL del server Jellyfin
-- API key Jellyfin
+- Windows, macOS, or Linux
+- Python 3.10 or later
+- A Jellyfin server URL
+- A Jellyfin API key
 
-## Installazione
+## Installation
 
-Clona il repository:
+Clone the repository:
 
 ```bash
-git clone https://github.com/tuo-utente/jellyfin-export.git
+git clone https://github.com/your-username/jellyfin-export.git
 cd jellyfin-export
 ```
 
-Se sei su Windows e non hai Python, puoi installarlo con:
+If you are on Windows and do not have Python installed yet, you can install it with:
 
 ```powershell
 winget install Python.Python.3.12
 ```
 
-Verifica poi l'installazione:
+Then verify the installation:
 
 ```powershell
 python --version
 ```
 
-## Configurazione
+## Configuration
 
-Copia [`.env.example`](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.env.example) in `.env`:
+Copy [`.env.example`](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.env.example) to `.env`:
 
 ```powershell
 Copy-Item .\.env.example .\.env
 ```
 
-Poi modifica [`.env`](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.env) con i tuoi dati:
+Then edit [`.env`](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.env) with your values:
 
 ```env
 JELLYFIN_SERVER_URL=http://localhost:8096
@@ -58,17 +58,17 @@ JELLYFIN_USERNAME=your_username
 LETTERBOXD_OUTPUT=letterboxd-import.csv
 ```
 
-Il file `.env` viene ignorato da git, quindi non finira' su GitHub.
+The `.env` file is ignored by git, so it will not be pushed to GitHub.
 
-## Utilizzo rapido
+## Quick Start
 
-Con la configurazione nel file `.env`:
+With configuration stored in `.env`:
 
 ```powershell
 python .\export_jellyfin_to_letterboxd.py
 ```
 
-Oppure passando i parametri direttamente:
+Or by passing parameters directly:
 
 ```powershell
 python .\export_jellyfin_to_letterboxd.py `
@@ -78,28 +78,28 @@ python .\export_jellyfin_to_letterboxd.py `
   --output ".\letterboxd-import.csv"
 ```
 
-Se il tuo server usa HTTPS con certificato self-signed:
+If your server uses HTTPS with a self-signed certificate:
 
 ```powershell
 python .\export_jellyfin_to_letterboxd.py --insecure
 ```
 
-## Parametri supportati
+## Supported Parameters
 
-- `--server-url`: URL base del server Jellyfin
-- `--api-key`: API key Jellyfin
-- `--env-file`: percorso di un file `.env` alternativo
-- `--output`: percorso del CSV generato
-- `--username`: nome utente Jellyfin da risolvere automaticamente
-- `--user-id`: ID utente Jellyfin
-- `--parent-id`: limita l'export a una libreria/cartella specifica
-- `--page-size`: numero di risultati richiesti per pagina
-- `--timeout`: timeout HTTP in secondi
-- `--insecure`: disabilita la verifica TLS/SSL
+- `--server-url`: Jellyfin base server URL
+- `--api-key`: Jellyfin API key
+- `--env-file`: path to an alternative `.env` file
+- `--output`: output CSV file path
+- `--username`: Jellyfin username to resolve automatically
+- `--user-id`: Jellyfin user ID
+- `--parent-id`: limit the export to a specific library or folder
+- `--page-size`: number of results requested per page
+- `--timeout`: HTTP timeout in seconds
+- `--insecure`: disable TLS/SSL certificate verification
 
-I valori passati via CLI hanno priorita' rispetto a quelli definiti nel file `.env`.
+CLI arguments take priority over values defined in the `.env` file.
 
-## Variabili `.env` supportate
+## Supported `.env` Variables
 
 - `JELLYFIN_SERVER_URL`
 - `JELLYFIN_API_KEY`
@@ -111,9 +111,9 @@ I valori passati via CLI hanno priorita' rispetto a quelli definiti nel file `.e
 - `JELLYFIN_INSECURE`
 - `LETTERBOXD_OUTPUT`
 
-## Formato CSV esportato
+## Exported CSV Format
 
-Il CSV contiene queste colonne:
+The generated CSV includes these columns:
 
 - `Title`
 - `Year`
@@ -121,42 +121,42 @@ Il CSV contiene queste colonne:
 - `tmdbID`
 - `imdbID`
 
-Letterboxd usa `tmdbID` e `imdbID` per un match preciso quando presenti. Se mancano, prova a riconoscere il film tramite titolo, anno e regista.
+Letterboxd uses `tmdbID` and `imdbID` for precise matching when available. If they are missing, it tries to match by title, year, and director.
 
-## Import su Letterboxd
+## Importing into Letterboxd
 
-1. Genera il file CSV con lo script
-2. Vai su `https://letterboxd.com/importing-data/`
-3. Carica il CSV
-4. Controlla l'anteprima dei match prima di confermare
+1. Generate the CSV file with the script
+2. Go to `https://letterboxd.com/importing-data/`
+3. Upload the CSV file
+4. Review the match preview before confirming
 
-Se vuoi importare i film dentro una lista specifica, puoi avviare l'import dalla pagina di modifica della lista su Letterboxd.
+If you want to import the movies into a specific list, you can start the import from that list's edit page in Letterboxd.
 
-## Note utili
+## Notes
 
-- Per ottenere i match migliori, conviene che Jellyfin abbia valorizzati i provider ID `Tmdb` e/o `Imdb`
-- Se alcuni film non hanno ID esterni, Letterboxd fara' un best guess
-- Letterboxd applica un limite di circa 1 MB ai file CSV caricati
-- Se la tua libreria e' molto grande, potrebbe essere necessario dividere il file in piu' parti
+- For the best results, make sure Jellyfin has `Tmdb` and/or `Imdb` provider IDs in its metadata
+- If some movies do not have external IDs, Letterboxd will fall back to best-guess matching
+- Letterboxd applies an upload limit of about 1 MB for CSV files
+- If your library is very large, you may need to split the export into multiple files
 
-## Sicurezza
+## Security
 
-- Non committare mai il tuo file `.env`
-- Usa `.env.example` come template pubblico
-- Tieni privata la tua API key Jellyfin
+- Never commit your `.env` file
+- Use `.env.example` as the public configuration template
+- Keep your Jellyfin API key private
 
-## Limitazioni
+## Limitations
 
-- Lo script esporta i film presenti in Jellyfin, non lo storico completo delle attivita'
-- Il match finale dipende anche dalla qualita' dei metadati presenti nella tua libreria
+- The script exports movies currently available in Jellyfin, not your full activity history
+- Final matching quality also depends on the metadata quality in your Jellyfin library
 
-## Repository structure
+## Repository Structure
 
-- [export_jellyfin_to_letterboxd.py](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/export_jellyfin_to_letterboxd.py): script principale
-- [.env.example](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.env.example): template di configurazione
-- [.gitignore](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.gitignore): file ignorati da git
+- [export_jellyfin_to_letterboxd.py](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/export_jellyfin_to_letterboxd.py): main script
+- [.env.example](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.env.example): configuration template
+- [.gitignore](c:/Users/Dionigi/Documents/GitHub/Jellyfin-export/.gitignore): ignored files configuration
 
-## Riferimenti
+## References
 
 - Letterboxd import docs: https://letterboxd.com/importing-data/
 - Jellyfin API docs: https://api.jellyfin.org/
