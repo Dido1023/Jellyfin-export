@@ -139,12 +139,6 @@ If you want to import the movies into a specific list, you can start the import 
 - Letterboxd applies an upload limit of about 1 MB for CSV files
 - If your library is very large, you may need to split the export into multiple files
 
-## Security
-
-- Never commit your `.env` file
-- Use `.env.example` as the public configuration template
-- Keep your Jellyfin API key private
-
 ## Limitations
 
 - The script exports movies currently available in Jellyfin, not your full activity history
