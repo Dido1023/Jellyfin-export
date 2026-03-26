@@ -19,6 +19,7 @@ DEFAULT_OUTPUT = "letterboxd-import.csv"
 DEFAULT_TIMEOUT = 30
 DEFAULT_PAGE_SIZE = 200
 DEFAULT_ENV_FILE = ".env"
+DEFAULT_MAX_MOVIES_PER_FILE = 1800
 
 
 def parse_bool(value: str | None) -> bool:
@@ -89,6 +90,17 @@ def parse_args() -> argparse.Namespace:
         "--output",
         default=os.environ.get("LETTERBOXD_OUTPUT", DEFAULT_OUTPUT),
         help=f"Percorso del CSV da generare. Default: {DEFAULT_OUTPUT}",
+    )
+    parser.add_argument(
+        "--max-movies-per-file",
+        type=int,
+        default=int(
+            os.environ.get("LETTERBOXD_MAX_MOVIES_PER_FILE", DEFAULT_MAX_MOVIES_PER_FILE)
+        ),
+        help=(
+            "Numero massimo di film per file CSV prima di dividere l'export. "
+            f"Default: {DEFAULT_MAX_MOVIES_PER_FILE}"
+        ),
     )
     parser.add_argument(
         "--user-id",
@@ -366,6 +378,33 @@ def write_csv(output_path: Path, rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
+def build_split_output_path(output_path: Path, index: int) -> Path:
+    suffix = output_path.suffix or ".csv"
+    return output_path.with_name(f"{output_path.stem}-{index}{suffix}")
+
+
+def write_csv_files(
+    output_path: Path,
+    rows: list[dict[str, str]],
+    max_movies_per_file: int,
+) -> list[Path]:
+    if max_movies_per_file <= 0:
+        raise RuntimeError("--max-movies-per-file deve essere maggiore di zero.")
+
+    if len(rows) <= max_movies_per_file:
+        write_csv(output_path, rows)
+        return [output_path]
+
+    output_paths: list[Path] = []
+    for index, start in enumerate(range(0, len(rows), max_movies_per_file), start=1):
+        chunk = rows[start : start + max_movies_per_file]
+        split_output_path = build_split_output_path(output_path, index)
+        write_csv(split_output_path, chunk)
+        output_paths.append(split_output_path)
+
+    return output_paths
+
+
 def main() -> int:
     args = parse_args()
     require_args(args)
@@ -393,13 +432,22 @@ def main() -> int:
 
         rows = [movie_to_letterboxd_row(movie) for movie in movies]
         output_path = Path(args.output).resolve()
-        write_csv(output_path, rows)
+        output_paths = write_csv_files(output_path, rows, args.max_movies_per_file)
 
         with_ids = sum(1 for row in rows if row["tmdbID"] or row["imdbID"])
-        print(
-            f"Esportati {len(rows)} film in '{output_path}'. "
-            f"{with_ids} righe hanno almeno un ID tra TMDB o IMDb."
-        )
+        if len(output_paths) == 1:
+            print(
+                f"Esportati {len(rows)} film in '{output_paths[0]}'. "
+                f"{with_ids} righe hanno almeno un ID tra TMDB o IMDb."
+            )
+        else:
+            print(
+                f"Esportati {len(rows)} film in {len(output_paths)} file "
+                f"(max {args.max_movies_per_file} film per file). "
+                f"{with_ids} righe hanno almeno un ID tra TMDB o IMDb."
+            )
+            for path in output_paths:
+                print(f"- {path}")
         return 0
     except RuntimeError as exc:
         print(f"Errore: {exc}", file=sys.stderr)
